@@ -1,6 +1,6 @@
 <?php
 
-namespace http;
+namespace Rehyved\http;
 
 class HttpCookie {
 	private $name;
