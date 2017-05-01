@@ -1,5 +1,5 @@
 {
-    "name": "rehyved/http-client-php",
+    "name": "rehyved/php-http-client",
     "description": "An easy to use wrapper for the curl http library in PHP",
     "keywords": ["http", "http-client", "client"],
     "license": "MIT",
