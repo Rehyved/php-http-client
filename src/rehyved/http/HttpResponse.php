@@ -2,6 +2,8 @@
 
 namespace Rehyved\http;
 
+use Rehyved\utilities\StringHelper;
+
 class HttpResponse
 {
     private $url;
@@ -39,7 +41,6 @@ class HttpResponse
         $cookies = array();
         foreach ($headers as $header => $value) {
             if (mb_stripos($header, "Set-Cookie") !== false) {
-
                 foreach ($value as $cookieString) {
                     $cookie = new HttpCookie($cookieString);
                     $cookies[$cookie->getName()] = $cookie;
@@ -119,10 +120,10 @@ class HttpResponse
 
     public function getContent()
     {
-        if ($this->contentType == "application/json") {
+        if (StringHelper::contains($this->contentType, "application/json")) {
             return json_decode($this->content);
         }
-        if ($this->contentType == "text/xml" || $this->contentType == "application/xml") {
+        if (StringHelper::contains($this->contentType, "text/xml") || StringHelper::contains($this->contentType, "application/xml")) {
             return simplexml_load_string($this->content);
         }
         return $this->content;
@@ -133,5 +134,3 @@ class HttpResponse
         return !empty($this->error) || HttpStatus::isError($this->httpStatus);
     }
 }
-
-?>
