@@ -17,7 +17,7 @@
   "require": {
     "php": ">=7.0",
     "ext-mbstring": "*",
-    "rehyved/php-utilities": "dev-master"
+    "rehyved/php-utilities": ">=0.1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "6.1.*"
