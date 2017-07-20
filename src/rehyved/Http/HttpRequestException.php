@@ -1,6 +1,6 @@
 <?php
 
-namespace Rehyved\http;
+namespace Rehyved\Http;
 
 
 class HttpRequestException extends \Exception

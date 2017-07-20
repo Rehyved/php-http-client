@@ -1,8 +1,8 @@
 <?php
 
-namespace Rehyved\http;
+namespace Rehyved\Http;
 
-use Rehyved\utilities\StringHelper;
+use Rehyved\Utilities\StringHelper;
 
 class HttpResponse
 {
