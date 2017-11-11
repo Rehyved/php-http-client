@@ -62,7 +62,7 @@ class HttpRequestTest extends TestCase {
 		$this->assertEquals( "value2", $result->form->param2 );
 	}
 
-	public function testPostWithNoFormatShouldUrlEncode() {
+	public function testPostWithNoFormatShouldDefaultToMultipart() {
 		$response = HttpRequest::create( "https://httpbin.org" )->post( "post", array(
 				"param1" => "value1",
 				"param2" => "value2" 
@@ -75,7 +75,7 @@ class HttpRequestTest extends TestCase {
 		// See if object deserialization works as expected:
 		$result = $response->getContent();
 		$this->assertEquals( "https://httpbin.org/post", $result->url );
-		$this->assertEquals( "application/x-www-form-urlencoded", $result->headers->{"Content-Type"} );
+		$this->assertStringStartsWith( "multipart/form-data", $result->headers->{"Content-Type"} );
 		$this->assertEquals( "value1", $result->form->param1 );
 		$this->assertEquals( "value2", $result->form->param2 );
 	}
