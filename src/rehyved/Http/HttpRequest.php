@@ -273,21 +273,20 @@ class HttpRequest
                     $contentType = $this->headers["Content-Type"][0];
                     if (stripos($contentType, "application/json") !== false) {
                         $body = json_encode($body);
+                        $this->header("Content-Length", strlen($body));
                     }
-                    if (stripos($contentType, "application/x-www-form-urlencoded") !== false) {
+                    else if (stripos($contentType, "application/x-www-form-urlencoded") !== false) {
                         $body = http_build_query($body);
+                        $this->header("Content-Length", strlen($body));
                     }
-                    if (stripos($contentType, "multipart/form-data") !== false) {
+                    else if (stripos($contentType, "multipart/form-data") !== false) {
                         $boundary = $this->parseBoundaryFromContentType($contentType);
                         $body = $this->multipartBuildBody($body, $boundary);
+                        $this->header("Content-Length", strlen($body));
                     }
-                } else {
-                    $body = http_build_query($body);
-                    $this->contentType("application/x-www-form-urlencoded");
                 }
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-            $this->header("Content-Length", strlen($body));
         }
     }
 
