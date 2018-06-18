@@ -11,7 +11,9 @@ class HttpRequest
     private $parameters;
     private $cookies;
     private $mirrorCookies;
-    private $timeout = HttpRequest::DEFAULT_TIMEOUT;
+    private $timeout;
+
+    private $verifySslCertificate;
 
     private $username;
     private $password;
@@ -23,6 +25,8 @@ class HttpRequest
         $this->parameters = array();
         $this->cookies = array();
         $this->mirrorCookies = false;
+        $this->timeout = self::DEFAULT_TIMEOUT;
+        $this->verifySslCertificate = false;
     }
 
     public static function create($baseUrl)
@@ -136,6 +140,11 @@ class HttpRequest
         return $this;
     }
 
+    public function verifySslCertificate(bool $verifySslCertificate){
+        $this->verifySslCertificate = $verifySslCertificate;
+        return $this;
+    }
+
     public function get(string $path = ""): HttpResponse
     {
         return $this->request($path, HttpMethod::GET);
@@ -193,6 +202,10 @@ class HttpRequest
         curl_setopt($ch, CURLOPT_HEADER, true);
 
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
+
+        if(!$this->verifySslCertificate){
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        }
 
         if (!empty($this->username)) {
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
