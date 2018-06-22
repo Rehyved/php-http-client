@@ -179,7 +179,8 @@ class HttpResponse
      * Returns the content of the HTTP response.
      * If the response has a Content-Type of application/json the content is returned as a deserialized object.
      * If the response has a Content-Type of text/xml or application/xml content is returned as a deserialized SimpleXMLElement.
-     * @return bool|mixed|\SimpleXMLElement|string
+     * For any other Content-Type the content is returned as-is.
+     * @return mixed the content of the HTTP response
      * @see SimpleXMLElement
      * @see json_decode()
      */
