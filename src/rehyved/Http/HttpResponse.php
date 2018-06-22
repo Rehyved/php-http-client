@@ -121,9 +121,9 @@ class HttpResponse
     /**
      * Returns the value of the cookie in the HTTP response with the provided name
      * @param string $name the cookie name for which to retrieve the value
-     * @return HttpCookie the value of the cookie or NULL if the header was not in the HTTP response
+     * @return HttpCookie|null the value of the cookie or NULL if the header was not in the HTTP response
      */
-    public function getCookie(string $name): HttpCookie
+    public function getCookie(string $name)
     {
         if (array_key_exists($name, $this->cookies)) {
             return $this->cookies[$name];
