@@ -57,10 +57,10 @@ class HttpRequest
     /**
      * Adds a header to the request
      * @param string $name the name of the header
-     * @param string $value the value for the header
+     * @param mixed $value the value for the header
      * @return HttpRequest
      */
-    public function header(string $name, string $value): HttpRequest
+    public function header(string $name, $value): HttpRequest
     {
         if (!array_key_exists($name, $this->headers)) {
             $this->headers[$name] = array();
@@ -72,7 +72,7 @@ class HttpRequest
 
     /**
      * Adds an array of headers to the HttpRequest
-     * @param array $headers An associative array of name->value string values to add as headers to the HttpRequest
+     * @param array $headers An associative array of name->value to add as headers to the HttpRequest
      * @return HttpRequest
      */
     public function headers(array $headers): HttpRequest
@@ -109,7 +109,7 @@ class HttpRequest
      * @param string $contentType the value to set for the Accept header
      * @return HttpRequest
      */
-    public function accept(string $contentType)
+    public function accept(string $contentType): HttpRequest
     {
         $contentType = trim($contentType);
 
@@ -136,10 +136,10 @@ class HttpRequest
     /**
      * Adds a query parameter to the HttpRequest.
      * @param string $name the name of the query parameter to add
-     * @param string $value the value of the query parameter to add
+     * @param mixed $value the value of the query parameter to add
      * @return HttpRequest
      */
-    public function parameter(string $name, string $value): HttpRequest
+    public function parameter(string $name, $value): HttpRequest
     {
         $this->parameters[$name] = $value;
 
@@ -148,7 +148,7 @@ class HttpRequest
 
     /**
      * Adds an array of query parameters to the HttpRequest
-     * @param array $parameters An associative array of name->value string values to add as query parameters to the HttpRequest
+     * @param array $parameters An associative array of name->value to add as query parameters to the HttpRequest
      * @return HttpRequest
      */
     public function parameters(array $parameters): HttpRequest
@@ -163,10 +163,10 @@ class HttpRequest
     /**
      * Adds a cookie to the HttpRequest
      * @param string $name the name of the cookie to add to the HttpRequest
-     * @param string $value the value of the cookie to add to the HttpRequest
+     * @param mixed $value the value of the cookie to add to the HttpRequest
      * @return HttpRequest
      */
-    public function cookie(string $name, string $value): HttpRequest
+    public function cookie(string $name, $value): HttpRequest
     {
         if ($name != 'Array') {
             $this->cookies[$name] = $value;
@@ -176,7 +176,7 @@ class HttpRequest
 
     /**
      * Adds an array of cookies to the HttpRequest, if the provided array is null, the PHP value $_COOKIE is used.
-     * @param array $cookies An associative array of name->value string values to add as cookie to the HttpRequest,
+     * @param array $cookies An associative array of name->value to add as cookie to the HttpRequest,
      *      default value is $_COOKIE
      * @return HttpRequest
      */
@@ -245,7 +245,7 @@ class HttpRequest
      * @param mixed body the body to PUT to the specified path
      * @return HttpResponse The response to the HttpRequest
      */
-    public function put(string $path, $body)
+    public function put(string $path, $body): HttpResponse
     {
         return $this->request($path, HttpMethod::PUT, $body);
     }
@@ -256,7 +256,7 @@ class HttpRequest
      * @param mixed body the body to POST to the specified path
      * @return HttpResponse The response to the HttpRequest
      */
-    public function post(string $path, $body)
+    public function post(string $path, $body): HttpResponse
     {
         return $this->request($path, HttpMethod::POST, $body);
     }
@@ -267,11 +267,18 @@ class HttpRequest
      * @param mixed body the body to DELETE to the specified path
      * @return HttpResponse The response to the HttpRequest
      */
-    public function delete(string $path, $body)
+    public function delete(string $path, $body): HttpResponse
     {
         return $this->request($path, HttpMethod::DELETE, $body);
     }
 
+    /**
+     * Constructs the HTTP request and sends it using the provided method and request body
+     * @param string $path the path to send the request to
+     * @param string $method the HTTP method to use
+     * @param mixed|null $body the body to send
+     * @return HttpResponse the response after sending the HTTP request
+     */
     private function request(string $path, string $method, $body = null): HttpResponse
     {
         $ch = curl_init();
@@ -287,7 +294,13 @@ class HttpRequest
         return $this->send($ch);
     }
 
-    private function send($ch)
+    /**
+     * Sends the constructed request
+     * @param mixed $ch the curl handler
+     * @return HttpResponse the HTTP response returned by the request
+     * @throws HttpRequestException If an error occurs when trying to send the request
+     */
+    private function send($ch): HttpResponse
     {
         $returnHeaders = array();
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, $header) use (&$returnHeaders) {
