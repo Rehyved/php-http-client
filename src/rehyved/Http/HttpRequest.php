@@ -2,15 +2,30 @@
 
 namespace Rehyved\Http;
 
+/**
+ * Represents an instance of a HTTP request.
+ * This class provides methods to construct a request and execute it with the appropriate HTTP method.
+ *
+ * Default configuration for some settings can be configured globally to prevent having to provide these values on each HttpRequest explicitly.
+ * The following configuration options are available by defining the following constants:
+ * <ul>
+ *  <li><b>RPHC_DEFAULT_HEADERS</b> - An associative array of header name-> header value to be included with each HTTP request</li>
+ *  <li><b>RPHC_DEFAULT_TIMEOUT</b> - An int value indicating the number of seconds to use as a timeout for HTTP requests</li>
+ *  <li><b>RPHC_DEFAULT_VERIFY_SSL_CERTIFICATE</b> - a boolean value indicating if the validity of SSL certificates should be enforced in HTTP requests (default: true)</li>
+ * </ul>
+ * @see define()
+ * @package Rehyved\Http
+ */
 class HttpRequest
 {
+    const DEFAULT_HEADERS = array();
     const DEFAULT_TIMEOUT = 30; // seconds
+    const DEFAULT_VERIFY_SSL_CERTIFICATE = true;
 
     private $baseUrl;
     private $headers;
     private $parameters;
     private $cookies;
-    private $mirrorCookies;
     private $timeout;
 
     private $verifySslCertificate;
@@ -20,21 +35,32 @@ class HttpRequest
 
     private function __construct(string $baseUrl)
     {
+        $this->headers = defined("RPHC_DEFAULT_HEADERS") ? RPHC_DEFAULT_HEADERS : self::DEFAULT_HEADERS;
+        $this->timeout = defined("RPHC_DEFAULT_TIMEOUT") ? RPHC_DEFAULT_TIMEOUT : self::DEFAULT_TIMEOUT;
+        $this->verifySslCertificate = defined("RPHC_DEFAULT_VERIFY_SSL_CERTIFICATE") ? RPHC_DEFAULT_VERIFY_SSL_CERTIFICATE : self::DEFAULT_VERIFY_SSL_CERTIFICATE;
+
         $this->baseUrl = $baseUrl;
-        $this->headers = array();
         $this->parameters = array();
         $this->cookies = array();
-        $this->mirrorCookies = false;
-        $this->timeout = self::DEFAULT_TIMEOUT;
-        $this->verifySslCertificate = false;
     }
 
-    public static function create($baseUrl)
+    /**
+     * Creates a new HttpRequest
+     * @param string $baseUrl the base URL to which the request will go.
+     * @return HttpRequest
+     */
+    public static function create(string $baseUrl)
     {
         return new HttpRequest($baseUrl);
     }
 
-    public function header($name, $value)
+    /**
+     * Adds a header to the request
+     * @param string $name the name of the header
+     * @param string $value the value for the header
+     * @return HttpRequest
+     */
+    public function header(string $name, string $value): HttpRequest
     {
         if (!array_key_exists($name, $this->headers)) {
             $this->headers[$name] = array();
@@ -44,7 +70,12 @@ class HttpRequest
         return $this;
     }
 
-    public function headers(array $headers)
+    /**
+     * Adds an array of headers to the HttpRequest
+     * @param array $headers An associative array of name->value string values to add as headers to the HttpRequest
+     * @return HttpRequest
+     */
+    public function headers(array $headers): HttpRequest
     {
         foreach ($headers as $name => $value) {
             $this->header($name, $value);
@@ -53,7 +84,12 @@ class HttpRequest
         return $this;
     }
 
-    public function contentType(string $contentType)
+    /**
+     * Sets the Content-Type header of the HttpRequest
+     * @param string $contentType the value to set for the Content-Type header
+     * @return HttpRequest
+     */
+    public function contentType(string $contentType): HttpRequest
     {
         $contentType = trim($contentType);
 
@@ -68,6 +104,11 @@ class HttpRequest
         return $this->header("Content-Type", $contentType);
     }
 
+    /**
+     * Sets the Accept header of the HttpRequest
+     * @param string $contentType the value to set for the Accept header
+     * @return HttpRequest
+     */
     public function accept(string $contentType)
     {
         $contentType = trim($contentType);
@@ -75,7 +116,13 @@ class HttpRequest
         return $this->header("Accept", $contentType);
     }
 
-    public function authorization(string $scheme, $value)
+    /**
+     * Sets the Authorization header of the HttpRequest
+     * @param string $scheme the scheme to use in the value of the Authorization header (e.g. Bearer)
+     * @param string $value the value to set for the the Authorization header
+     * @return HttpRequest
+     */
+    public function authorization(string $scheme, string $value): HttpRequest
     {
         if (empty($scheme)) {
             throw new \InvalidArgumentException("Scheme was null or empty");
@@ -86,14 +133,25 @@ class HttpRequest
         return $this->header("Authorization", $scheme . " " . $value);
     }
 
-    public function parameter($name, $value)
+    /**
+     * Adds a query parameter to the HttpRequest.
+     * @param string $name the name of the query parameter to add
+     * @param string $value the value of the query parameter to add
+     * @return HttpRequest
+     */
+    public function parameter(string $name, string $value): HttpRequest
     {
         $this->parameters[$name] = $value;
 
         return $this;
     }
 
-    public function parameters(array $parameters)
+    /**
+     * Adds an array of query parameters to the HttpRequest
+     * @param array $parameters An associative array of name->value string values to add as query parameters to the HttpRequest
+     * @return HttpRequest
+     */
+    public function parameters(array $parameters): HttpRequest
     {
         foreach ($parameters as $name => $value) {
             $this->parameter($name, $value);
@@ -102,7 +160,13 @@ class HttpRequest
         return $this;
     }
 
-    public function cookie(string $name, string $value)
+    /**
+     * Adds a cookie to the HttpRequest
+     * @param string $name the name of the cookie to add to the HttpRequest
+     * @param string $value the value of the cookie to add to the HttpRequest
+     * @return HttpRequest
+     */
+    public function cookie(string $name, string $value): HttpRequest
     {
         if ($name != 'Array') {
             $this->cookies[$name] = $value;
@@ -110,7 +174,13 @@ class HttpRequest
         return $this;
     }
 
-    public function cookies(array $cookies = null)
+    /**
+     * Adds an array of cookies to the HttpRequest, if the provided array is null, the PHP value $_COOKIE is used.
+     * @param array $cookies An associative array of name->value string values to add as cookie to the HttpRequest,
+     *      default value is $_COOKIE
+     * @return HttpRequest
+     */
+    public function cookies(array $cookies = null): HttpRequest
     {
         if ($cookies === null) {
             $cookies = $_COOKIE;
@@ -122,44 +192,81 @@ class HttpRequest
         return $this;
     }
 
-    public function mirrorCookies()
-    {
-        $this->mirrorCookies = true;
-        return $this->cookies();
-    }
-
-    public function basicAuthentication(string $username, string $password = "")
+    /**
+     * Sets the basic authentication to use on the HttpRequest
+     * @param string $username the username to use with Basic Authentication
+     * @param string $password the password to use with Basic Authentication
+     * @return HttpRequest
+     */
+    public function basicAuthentication(string $username, string $password = ""): HttpRequest
     {
         $this->username = $username;
         $this->password = $password;
+        return $this;
     }
 
-    public function timeout(int $timeout)
+    /**
+     * Sets the request timeout on the HttpRequest
+     * @param int $timeout the timeout to use for the HttpRequest
+     * @return HttpRequest
+     */
+    public function timeout(int $timeout): HttpRequest
     {
         $this->timeout = $timeout;
         return $this;
     }
 
-    public function verifySslCertificate(bool $verifySslCertificate){
+    /**
+     * Controls if the validity of SSL certificates should be verified.
+     * WARNING: This should never be done in a production setup and should be used for debugging only.
+     * @param bool $verifySslCertificate
+     * @return HttpRequest
+     * @see curl_setopt() and the CURLOPT_SSL_VERIFYPEER option
+     */
+    public function verifySslCertificate(bool $verifySslCertificate): HttpRequest
+    {
         $this->verifySslCertificate = $verifySslCertificate;
         return $this;
     }
 
+    /**
+     * Executes the HttpRequest as a GET request to the specified path
+     * @param string $path the path to execute the GET request on
+     * @return HttpResponse The response to the HttpRequest
+     */
     public function get(string $path = ""): HttpResponse
     {
         return $this->request($path, HttpMethod::GET);
     }
 
+    /**
+     * Executes the HttpRequest as a PUT request to the specified path with the provided body
+     * @param string $path the path to execute the PUT request to
+     * @param mixed body the body to PUT to the specified path
+     * @return HttpResponse The response to the HttpRequest
+     */
     public function put(string $path, $body)
     {
         return $this->request($path, HttpMethod::PUT, $body);
     }
 
+    /**
+     * Executes the HttpRequest as a POST request to the specified path with the provided body
+     * @param string $path the path to execute the POST request to
+     * @param mixed body the body to POST to the specified path
+     * @return HttpResponse The response to the HttpRequest
+     */
     public function post(string $path, $body)
     {
         return $this->request($path, HttpMethod::POST, $body);
     }
 
+    /**
+     * Executes the HttpRequest as a DELETE request to the specified path with the provided body
+     * @param string $path the path to execute the DELETE request to
+     * @param mixed body the body to DELETE to the specified path
+     * @return HttpResponse The response to the HttpRequest
+     */
     public function delete(string $path, $body)
     {
         return $this->request($path, HttpMethod::DELETE, $body);
@@ -201,11 +308,11 @@ class HttpRequest
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
 
+        // Set request timeout
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
 
-        if(!$this->verifySslCertificate){
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        }
+        // Set verification of SSL certificates
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verifySslCertificate);
 
         if (!empty($this->username)) {
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -221,10 +328,6 @@ class HttpRequest
         }
 
         $httpResponse = new HttpResponse($requestInfo, $returnHeaders, $response, $error);
-
-        if ($this->mirrorCookies === true) {
-            $httpResponse->importCookies();
-        }
 
         return $httpResponse;
     }
@@ -286,11 +389,9 @@ class HttpRequest
                     $contentType = $this->headers["Content-Type"][0];
                     if (stripos($contentType, "application/json") !== false) {
                         $body = json_encode($body);;
-                    }
-                    else if (stripos($contentType, "application/x-www-form-urlencoded") !== false) {
+                    } else if (stripos($contentType, "application/x-www-form-urlencoded") !== false) {
                         $body = http_build_query($body);
-                    }
-                    else if (stripos($contentType, "multipart/form-data") !== false) {
+                    } else if (stripos($contentType, "multipart/form-data") !== false) {
                         $boundary = $this->parseBoundaryFromContentType($contentType);
                         $body = $this->multipartBuildBody($body, $boundary);
                     }
