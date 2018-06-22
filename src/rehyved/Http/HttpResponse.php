@@ -53,7 +53,7 @@ class HttpResponse
     {
         $cookies = array();
         foreach ($headers as $header => $value) {
-            if (mb_stripos($header, "Set-Cookie") !== false) {
+            if (stripos($header, "Set-Cookie") !== false) {
                 foreach ($value as $cookieString) {
                     $cookie = new HttpCookie($cookieString);
                     $cookies[$cookie->getName()] = $cookie;
