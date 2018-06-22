@@ -3,8 +3,9 @@
 namespace Rehyved\Http;
 
 /**
- * An exception thrown when a HTTP request fails or results in an error response
+ * An exception thrown when a HTTP request fails
  * @package Rehyved\Http
+ * @see curl_error()
  */
 class HttpRequestException extends \Exception
 {
