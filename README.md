@@ -1,9 +1,31 @@
 # HTTP Client for PHP
+*A HTTP Client implementation on top of the PHP cUrl extension for PHP inspired by the builder pattern.*
+
 [![Build Status](https://travis-ci.org/Rehyved/php-http-client.svg?branch=master)](https://travis-ci.org/Rehyved/php-http-client)
 
-A HTTP Client implementation for PHP inspired by the builder pattern.
 
-This library provides an easy to use wrapper around the cURL module of PHP.
+This library uses a builder pattern similar to the [Apache HTTP client Fluent API](https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html) for Java.
+The goal is to provide a readable and maintainable way of writing HTTP request logic inside your PHP websites and applications.
+
+Feedback is always welcome.
+
+* [Installation](#installation)
+* [Usage](#usage)
+  * [HttpRequest](#httprequest-class)
+    * [Request types](#request-types)
+      * [GET](#get-request)
+      * [PUT](#put-request)
+      * [POST](#post-request)
+      * [DELETE](#delete-request)
+    * [Adding query parameters](#adding-query-parameters)
+    * [Adding headers](#adding-headers)
+    * [Adding cookies](#adding-cookies)
+    * [Basic authentication](#basic-authentication)
+    * [Authorization header](#authorization-header)
+    * [Changing request timeout](#changing-request-timeout)
+    * [Disabling SSL certificate verification](#disabling-ssl-certificate-verification)
+  * [HttpResponse](#httpresponse-class)
+  * [HttpStatus](#httpstatus-class)
 
 ## Installation
 **Prerequisites**:
@@ -18,38 +40,40 @@ composer require rehyved/php-http-client
 
 ## Usage
 The goal with this library is to make it easy to produce HTTP requests in PHP whilst keeping the code readable and understandable.
-The library uses a builder pattern similar to the [Apache HTTP client Fluent API](https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fluent.html) for Java.
+The main starting point for this is the [HttpRequest class](#httprequest-class) and the [HttpResponse class](#httpresponse-class).
 
 ### HttpRequest class
 The following examples show different usages of the HttpRequest class to perform HTTP requests:
 
-#### GET request
+##### GET request
 ```php
 $response = HttpRequest::create("https://httpbin.org")  // Base url
     ->get("get");                                       // Path
 ```
 *[https://httpbin.org]() is a nice service to test HTTP requests against, it provides several ways to try different kinds of requests with a configurable response*
 
-#### PUT request
+#### Request types
+##### PUT request
 ```php
 $response = HttpRequest::create("https://httpbin.org")  // Base url
     ->contentType("application/json")                   // Content-Type header
 ->put("put", array("key" => "value");                   // Path & body
 ```
 
-#### POST request
+##### POST request
 ```php
 $response = HttpRequest::create("https://httpbin.org")  // Base url
     ->contentType("application/json")                   // Content-Type header
 ->post("post", array("key" => "value");                 // Path & body
 ```
 
-#### DELETE request
+##### DELETE request
 ```php
 $response = HttpRequest::create("https://httpbin.org")  // Base url
     ->contentType("application/json")                   // Content-Type header
 ->delete("delete", array("key" => "value");               // Path & body
 ```
+
 
 #### Adding query parameters
 ```php
