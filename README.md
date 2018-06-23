@@ -1,5 +1,5 @@
 # HTTP Client for PHP
-*A HTTP Client implementation on top of the PHP cUrl extension for PHP inspired by the builder pattern.*
+*A HTTP Client implementation on top of the PHP cURL extension for PHP inspired by the builder pattern.*
 
 [![Build Status](https://travis-ci.org/Rehyved/php-http-client.svg?branch=master)](https://travis-ci.org/Rehyved/php-http-client)
 
@@ -12,6 +12,7 @@ Feedback is always welcome.
 * [Installation](#installation)
 * [Usage](#usage)
   * [HttpRequest](#httprequest-class)
+    * [Overriding default configuration](#overriding-default-configuration)
     * [Request types](#request-types)
       * [GET](#get-request)
       * [PUT](#put-request)
@@ -45,6 +46,16 @@ The main starting point for this is the [HttpRequest class](#httprequest-class) 
 ### HttpRequest class
 The following examples show different usages of the HttpRequest class to perform HTTP requests:
 
+#### Overriding default configuration
+Default configuration for some settings can be configured globally to prevent having to provide these values on each creation of an HttpRequest. 
+
+The following configuration options are available by defining the appropriate constants with [define()](http://php.net/manual/en/function.define.php):
+
+* **RPHC_DEFAULT_HEADERS** - An associative array of header name-> header value to be included with each HTTP request (**default**: `array()`)
+* **RPHC_DEFAULT_TIMEOUT** - An int value indicating the number of seconds to use as a timeout for HTTP requests (**default**: `30`)
+* **RPHC_DEFAULT_VERIFY_SSL_CERTIFICATE** - a boolean value indicating if the validity of SSL certificates should be enforced in HTTP requests (**default**: `true`)
+
+#### Request types
 ##### GET request
 ```php
 $response = HttpRequest::create("https://httpbin.org")  // Base url
@@ -52,7 +63,6 @@ $response = HttpRequest::create("https://httpbin.org")  // Base url
 ```
 *[https://httpbin.org]() is a nice service to test HTTP requests against, it provides several ways to try different kinds of requests with a configurable response*
 
-#### Request types
 ##### PUT request
 ```php
 $response = HttpRequest::create("https://httpbin.org")  // Base url
